@@ -1,6 +1,8 @@
 import pickle
-import ntlk
+
+import nltk
 import pandas as pd
+import stopwords as stopwords
 from sklearn.svm import SVC
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.pipeline import make_pipeline
@@ -10,7 +12,7 @@ from stop_words import get_stop_words
 import re
 from nltk.corpus import stopwords
 
-ntlk.download('stopwords')
+nltk.download('stopwords')
 df = pd.read_csv("labels.csv")
 print(df)
 
@@ -22,16 +24,17 @@ stopwords = set(stopwords.words("english"))
 df['tweet'] = df['tweet'].apply(lambda x: " ".join(word for word in x.split() if word not in stopwords))
 
 print(df)
+
+y = df['class']
+X = df['tweet']
+
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
+
 clf = make_pipeline(
     TfidfVectorizer(stop_words=get_stop_words('en')),
     OneVsRestClassifier(SVC(kernel='linear', probability=True))
 )
-
-y = df['class']
-X = df.drop('class', axis=1)
-print(df)
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 
 # clf.fit(X_train, y_train)
 
