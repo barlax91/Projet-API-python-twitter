@@ -1,18 +1,15 @@
-import pickle
-
-import nltk
 import pandas as pd
 import stopwords as stopwords
 from sklearn.svm import SVC
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.pipeline import make_pipeline
-from sklearn.feature_extraction.text import TfidfVectorizer, _check_stop_list
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from stop_words import get_stop_words
 import re
 from nltk.corpus import stopwords
+from joblib import dump,load
 
-nltk.download('stopwords')
 df = pd.read_csv("labels.csv")
 print(df)
 
@@ -23,10 +20,12 @@ df['tweet'] = df['tweet'].apply(lambda x: ' '.join([w for w in x.split() if len(
 stopwords = set(stopwords.words("english"))
 df['tweet'] = df['tweet'].apply(lambda x: " ".join(word for word in x.split() if word not in stopwords))
 
-print(df)
+dfs = df.sample(n=1000, random_state=1)
+print(dfs)
 
-y = df['class']
-X = df['tweet']
+
+y = dfs['class']
+X = dfs['tweet']
 
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
@@ -36,6 +35,7 @@ clf = make_pipeline(
     OneVsRestClassifier(SVC(kernel='linear', probability=True))
 )
 
-# clf.fit(X_train, y_train)
-
-# s = pickle.dumps(clf)
+clf.fit(X_train, y_train)
+print("ok")
+dump(clf,'resultat.joblib')
+print("ok")
